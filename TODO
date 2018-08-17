@@ -1,0 +1,4 @@
+ * add storage of ETHC transactions against redis 
+ * add sending tx details to SQS
+ * add validation of tx list against redis
+
