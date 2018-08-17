@@ -30,7 +30,7 @@ app.post('/transaction/update', function(req, res) {
   let total = 0;
   for (var address of deposit_address_list) {
     let url = "http://api.ethplorer.io/getAddressTransactions/"+address+"?apiKey=freekey";
-    console.log("Processing deposit address "+address);
+    console.log("processing deposit address "+address);
     var options = { uri: url, json: true };
     rp(options)
     .then(function(body) {
