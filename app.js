@@ -19,6 +19,8 @@ app.use(express.static(__dirname + '/public'));
 
 // set the home page route
 app.get('/', function(req, res) {
+  const name    = process.env.HEROKU_APP_NAME || 'Unknown Name';
+  const version = process.env.HEROKU_RELEASE_VERSION || 'Unknown Version';
   res.json({"name": name,"version": version}); 	
 });
 
@@ -73,8 +75,8 @@ app.post('/transaction/update', function(req, res) {
     );
   } 
   Promise.all(promises)
-  .then(function(error, result) {
-     console.log(errors);
+  .then(function(values) {
+     console.log(values);
      if (errors && errors.length > 0) {
        res.send({ status: 500, error: errors });
      } else {
