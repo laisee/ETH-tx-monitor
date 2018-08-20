@@ -1,14 +1,15 @@
-const bodyParser    = require('body-parser');
+const addy        = require('./utils/address');
+const bodyParser  = require('body-parser');
 const express 	  = require('express');
-const request       = require('request-promise');
-const rp            = require('request-promise');
-const app           = express()
+const request     = require('request-promise');
+const rp          = require('request-promise');
+const app         = express()
 
 // assign app settings from envirtonment || default values
 const port    = process.env.PORT || 8080;
 
 // convert to read this from Env setting
-let deposit_address_list = getAddressList();
+let deposit_address_list = addy.getAddressList('eth');
 const update_url = 'https://api.abelegroup.io/monitoring/update_transaction';
 
 // parse application/json
@@ -66,7 +67,7 @@ app.post('/transaction/update', function(req, res) {
           }
           console.log("Process "+count+" transactions for a total of "+total+" ETH");
         } else {
-          errors.push("No transactions for address "+addy+" at ts "+new Date());
+          console.log("No transactions for address "+addy+" at ts "+new Date());
         }
       })
       .catch(function (err) {
@@ -76,7 +77,6 @@ app.post('/transaction/update', function(req, res) {
   } 
   Promise.all(promises)
   .then(function(values) {
-     console.log(values);
      if (errors && errors.length > 0) {
        res.send({ status: 500, error: errors });
      } else {
@@ -84,26 +84,6 @@ app.post('/transaction/update', function(req, res) {
      }
   });
 });
-
-function getAddressList() {
-  let list;
-  if (process.env.ETH_ADDRESS_LIST) {
-    try {
-      list = process.env.ETH_ADDRESS_LIST;
-      if (list) {
-        list = list.split(',');
-        console.log("ETH LIST is a LIST ..."+list);
-      }
-    }
-    catch (err) {
-      console.log(err);
-      throw err;
-    }
-  } else {
-    throw "ETH Address list doesnt exist in process.env ...";
-  }
-  return list;
-}
 
 // Start the app listening to default port
 app.listen(port, function() {
