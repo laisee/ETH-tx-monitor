@@ -10,7 +10,7 @@ const port    = process.env.PORT || 8080;
 
 // convert to read this from Env setting
 let deposit_address_list = addy.getAddressList('eth');
-const update_url = 'https://WEBHOOK_URL/UPDATE';
+const update_url         = process.env.API_UPDATE_URL;
 
 // parse application/json
 app.use(bodyParser.json())
