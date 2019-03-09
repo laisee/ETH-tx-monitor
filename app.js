@@ -10,7 +10,7 @@ const port    = process.env.PORT || 8080;
 
 // convert to read this from Env setting
 let deposit_address_list = addy.getAddressList('eth');
-const update_url = 'https://api.abelegroup.io/monitoring/update_transaction';
+const update_url = 'https://WEBHOOK_URL/UPDATE';
 
 // parse application/json
 app.use(bodyParser.json())
@@ -26,7 +26,7 @@ app.get('/', function(req, res) {
 });
 
 //
-// Retrieve transaction sent to Abele ETH addresses
+// Retrieve transaction sent to monitored ETH addresses
 //
 app.post('/transaction/update', function(req, res) {
   let count = 0;
