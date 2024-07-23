@@ -1,11 +1,10 @@
 const addy        = require('./utils/address');
+const axios       = require('axios');
 const bodyParser  = require('body-parser');
 const express 	  = require('express');
-const request     = require('request-promise');
-const rp          = require('request-promise');
 const app         = express()
 
-// assign app settings from envirtonment || default values
+// assign app settings from environment || default values
 const port    = process.env.PORT || 8080;
 
 // convert to read this from Env setting
@@ -37,9 +36,10 @@ app.post('/transaction/update', function(req, res) {
     let url = "http://api.ethplorer.io/getAddressTransactions/"+address+"?apiKey=freekey";
     const addy = address;
     console.log("processing deposit address "+addy);
-    var options = { uri: url, json: true };
-    promises.push(rp(options)
-      .then(function(body) {
+
+    promises.push(axios.get(url)
+      .then(function(response) {
+        const body = response.data;
         if (body && body.length > 0) {
           for (var txn of body) {
             let data = {};
@@ -49,23 +49,17 @@ app.post('/transaction/update', function(req, res) {
             data["amount"] = txn.value;
             data["currency"] = 'ETH';
             count++;
-            total += txn.value;;
-            request.post({
-              url: update_url,
-              method: "POST",
-              json: true,
-              body: data
-            },
-            function (error, response, body) {
-              if (response.statusCode == 200) {
+            total += txn.value;
+            axios.post(update_url, data)
+              .then(response => {
                 console.log("Updated "+txn.hash+ " Successfully for sending wallet"+txn.from);
-              } else {
-                console.log("Update of txn "+txn.hash+ " Failed wallet"+txn.from+" Status was "+response.statusCode);
-                errors.push("Error " +response.statusCode+"  while updating wallet "+error);
-              }
-            });
+              })
+              .catch(error => {
+                console.log("Update of txn "+txn.hash+ " Failed wallet"+txn.from+" Status was "+error.response.status);
+                errors.push("Error " + error.response.status + " while updating wallet " + error.message);
+              });
           }
-          console.log("Process "+count+" transactions for a total of "+total+" ETH");
+          console.log("Processed "+count+" transactions for a total of "+total+" ETH");
         } else {
           console.log("No transactions for address "+addy+" at ts "+new Date());
         }
@@ -74,7 +68,7 @@ app.post('/transaction/update', function(req, res) {
         errors.push("Error processing wallet updates "+err);
       })
     );
-  } 
+  }
   Promise.all(promises)
   .then(function(values) {
      if (errors && errors.length > 0) {
@@ -91,3 +85,4 @@ app.listen(port, function() {
    console.log(name + ' app is running on port ' + port);
    console.log("ETH Addy List is "+deposit_address_list);
 });
+
