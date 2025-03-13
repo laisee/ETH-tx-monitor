@@ -1,4 +1,3 @@
-const addy        = require('./utils/address');
 const axios       = require('axios');
 const bodyParser  = require('body-parser');
 const express 	  = require('express');
@@ -8,7 +7,9 @@ const app         = express()
 const port    = process.env.PORT || 8080;
 
 // convert to read this from Env setting
-let deposit_address_list = addy.getAddressList('eth');
+let deposit_address_list = process.env.ETH_ADDRESS_LIST
+  ? process.env.ETH_ADDRESS_LIST.split(',').map(address => address.trim())
+  : [];
 const update_url         = process.env.API_UPDATE_URL;
 
 // parse application/json
